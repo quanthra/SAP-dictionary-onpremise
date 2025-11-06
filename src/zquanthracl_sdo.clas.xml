@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZQUANTHRACL_SDO</CLSNAME>
+    <LANGU>P</LANGU>
+    <DESCRIPT>SAP Dictionary OnPremise</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CMPNAME>CREATE_CLASS</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Create Class</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>CREATE_DATA_ELEMENT</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Create Data Element</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>CREATE_DOMAIN</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Create Domain</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>CREATE_FUNCTION</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Create Function</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>CREATE_PACKAGE</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Create Package</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>CREATE_REQUEST</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Create Request</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>CREATE_TABLE</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Create Table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>VALIDATE_FIELDS</CMPNAME>
+     <LANGU>P</LANGU>
+     <DESCRIPT>Validate Fields</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
