@@ -50,15 +50,63 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
 
   METHOD create_package.
 
-    " GET REQ Data
+    "<<<<< GET REQUEST DATA
+    DATA: BEGIN OF ls_json_input,
+            r_name               TYPE string,
+            r_text               TYPE string,
+            r_transport_layer    TYPE string,
+            r_software_component TYPE string,
+            r_request            TYPE string,
+            o_super_package      TYPE string,
+          END OF ls_json_input.
+
     DATA(lo_entity) = mo_response->create_entity( ).
 
+    DATA(lv_request_body) = mo_request->get_entity( )->get_string_data( ).
+
+    /ui2/cl_json=>deserialize( EXPORTING json = lv_request_body CHANGING data = ls_json_input ).
+    "<<<<<<<<<
 
 
+    " Validate Fields
+    CHECK validate_fields( EXPORTING is_fields = ls_json_input io_request = mo_response ) IS INITIAL.
 
 
     " Create Package
+    DATA(lo_package_factory) = NEW cl_package_factory( ).
+    DATA lo_package         TYPE REF TO if_package.
 
+    DATA(ls_package_data) = VALUE scompkdtln(
+      devclass  = ls_json_input-r_name
+      ctext     = ls_json_input-r_text
+      pdevclass = ls_json_input-r_transport_layer
+      dlvunit   = ls_json_input-r_software_component
+      parentcl  = ls_json_input-o_super_package
+      as4user   = sy-uname
+      language  = sy-langu
+    ).
+
+    TRY.
+        lo_package_factory->create_new_package(
+          EXPORTING  i_suppress_dialog  = abap_true
+          IMPORTING  e_package          = lo_package
+          CHANGING   c_package_data     = ls_package_data
+          EXCEPTIONS OTHERS = 1
+        ).
+
+        " Save Package
+        lo_package->save( i_transport_request = |{ ls_json_input-r_request }|
+                          i_suppress_dialog   = abap_true ).
+
+        lo_entity->set_string_data( |\{ "success":"Request created", "data": \{ "package": "{ ls_package_data-devclass }"  \} \}| ).
+        lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
+        mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
+      CATCH cx_root INTO DATA(lx_error).
+        lo_entity->set_string_data(
+            |\{ "error":"{ lx_error->get_text( ) }." \}| ).
+        lo_entity->set_content_type( 'application/json; charset=UTF-8' ).
+        mo_response->set_status( cl_rest_status_code=>gc_client_error_bad_request ).
+    ENDTRY.
 
   ENDMETHOD.
 
@@ -101,6 +149,25 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
         enqueue_failed    = 2
         OTHERS            = 3.
 
+    IF ls_header IS NOT INITIAL.
+      DATA: lv_task TYPE trkorr.
+
+      CALL FUNCTION 'TRINT_INSERT_NEW_COMM'
+        EXPORTING
+          wi_kurztext   = CONV e07t-as4text( ls_json_input-r_text )
+          wi_trfunction = 'S'
+          wi_strkorr    = ls_header-trkorr
+        EXCEPTIONS
+          OTHERS        = 9.
+
+    ELSE.
+      lo_entity->set_string_data(
+            |\{ "error":"Error to create request." \}| ).
+      lo_entity->set_content_type( 'application/json; charset=UTF-8' ).
+      mo_response->set_status( cl_rest_status_code=>gc_client_error_bad_request ).
+      RETURN.
+    ENDIF.
+
     lo_entity->set_string_data( |\{ "success":"Request created", "data": \{ "request": "{ ls_header-trkorr }" \} \}| ).
     lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
     mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
@@ -126,7 +193,12 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
 
         CALL METHOD (lv_method).
       CATCH cx_root INTO DATA(lo_cxroot).
-        "#TODO
+        DATA(lo_entity) = mo_response->create_entity( ).
+        lo_entity->set_string_data(
+            |\{ "error":"{ lo_cxroot->get_text( ) }." \}| ).
+        lo_entity->set_content_type( 'application/json; charset=UTF-8' ).
+        mo_response->set_status( cl_rest_status_code=>gc_client_error_bad_request ).
+        RETURN.
     ENDTRY.
 
   ENDMETHOD.
