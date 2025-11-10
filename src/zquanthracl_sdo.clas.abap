@@ -13,6 +13,8 @@ public section.
   methods CREATE_CLASS .
   methods CREATE_FUNCTION .
   methods CREATE_REQUEST .
+  methods CREATE_PROGRAM .
+  methods GET_PROGRAM_SOURCE .
 
   methods IF_REST_RESOURCE~POST
     redefinition .
@@ -231,6 +233,103 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
         RETURN.
       ENDIF.
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD create_program.
+
+    "<<<<< GET REQUEST DATA
+    DATA: BEGIN OF ls_json_input,
+            r_name   TYPE string,
+            r_text   TYPE string,
+            r_source TYPE string,
+          END OF ls_json_input.
+
+    DATA(lo_entity) = mo_response->create_entity( ).
+
+    DATA(lv_request_body) = mo_request->get_entity( )->get_string_data( ).
+
+    /ui2/cl_json=>deserialize( EXPORTING json = lv_request_body CHANGING data = ls_json_input ).
+    "<<<<<<<<<
+
+    " Validate Fields
+    CHECK validate_fields( EXPORTING is_fields = ls_json_input io_request = mo_response ) IS INITIAL.
+
+    SPLIT ls_json_input-r_source AT '\n' INTO TABLE DATA(lt_source).
+
+    DATA(lv_name) = CONV sy-repid( ls_json_input-r_name ).
+    TRANSLATE lv_name TO UPPER CASE.
+    INSERT REPORT lv_name FROM lt_source.
+    GENERATE REPORT lv_name.
+
+    lo_entity->set_string_data( |\{ "success":"Program created", "data": \{ "program": "{ lv_name }" \} \}| ).
+    lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
+    mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
+
+  ENDMETHOD.
+
+
+  METHOD get_program_source.
+
+    "<<<<< GET REQUEST DATA
+    DATA: BEGIN OF ls_json_input,
+            r_obj_name TYPE string,
+            o_obj_type TYPE string,
+          END OF ls_json_input.
+
+    DATA(lo_entity) = mo_response->create_entity( ).
+
+    DATA(lv_request_body) = mo_request->get_entity( )->get_string_data( ).
+
+    /ui2/cl_json=>deserialize( EXPORTING json = lv_request_body CHANGING data = ls_json_input ).
+    "<<<<<<<<<
+
+    " Validate Fields
+    CHECK validate_fields( EXPORTING is_fields = ls_json_input io_request = mo_response ) IS INITIAL.
+
+    DATA: BEGIN OF ls_response,
+            source          TYPE w3_htmltab,
+            object          TYPE string,
+            obj_description TYPE string,
+          END OF ls_response.
+
+    DATA(lv_name) = CONV progname( ls_json_input-r_obj_name ).
+    READ REPORT lv_name INTO ls_response-source.
+
+    IF ls_response-source IS INITIAL.
+      " Buscamos pela Transação
+      SELECT SINGLE *
+        FROM tstc
+        WHERE tcode = @lv_name
+        INTO @DATA(ls_tcode).
+
+      IF ls_tcode IS NOT INITIAL.
+        ls_response-object = ls_tcode-pgmna.
+        lv_name = CONV progname( ls_response-object ).
+        READ REPORT lv_name INTO ls_response-source.
+      ENDIF.
+
+    ENDIF.
+
+    IF ls_response-source IS INITIAL.
+      lo_entity->set_string_data(
+            |\{ "error":"Program not found." \}| ).
+      lo_entity->set_content_type( 'application/json; charset=UTF-8' ).
+      mo_response->set_status( cl_rest_status_code=>gc_client_error_bad_request ).
+      RETURN.
+    ENDIF.
+
+    SELECT SINGLE text
+      FROM trdirt
+      WHERE name = @ls_response-object
+      INTO @ls_response-obj_description.
+
+    DATA(lv_json) = /ui2/cl_json=>serialize( data = ls_response ).
+
+    lo_entity->set_string_data( |\{ "success":"Found Source", "data": \{ "program": \{ { lv_json } \}  \} \}| ).
+    lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
+    mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
 
   ENDMETHOD.
 ENDCLASS.
