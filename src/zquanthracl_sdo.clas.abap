@@ -315,8 +315,9 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
     ENDIF.
 
     IF ls_response-source IS INITIAL.
+      DATA(lv_json_partial) = /ui2/cl_json=>serialize( data = ls_response ).
       lo_entity->set_string_data(
-            |\{ "message":"Program not found." \}| ).
+            |\{ "message":"Not found.", "data": { lv_json_partial } \}| ).
       lo_entity->set_content_type( 'application/json; charset=UTF-8' ).
       mo_response->set_status( cl_rest_status_code=>gc_client_error_bad_request ).
       RETURN.
@@ -332,7 +333,7 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
 
     DATA(lv_json) = /ui2/cl_json=>serialize( data = ls_response  ).
 
-    lo_entity->set_string_data( |\{ "message":"Found Program", "data": { lv_json } \}| ).
+    lo_entity->set_string_data( |\{ "message":"Found", "data": { lv_json } \}| ).
     lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
     mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
 
@@ -453,7 +454,10 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
     lo_clsref ?= lo_cifref.
 
     IF lo_clsref IS NOT BOUND.
-      RETURN.
+      DATA(lv_json_partial) = /ui2/cl_json=>serialize( data = ls_response  ).
+      lo_entity->set_string_data( |\{ "message":"Not Found", "data": { lv_json_partial } \}| ).
+      lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
+      mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
     ENDIF.
 
     READ REPORT lo_clsref->class_pool
@@ -668,8 +672,9 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
     APPEND LINES OF lt_source TO ls_response-source.
 
     IF ls_response-source IS INITIAL.
+      DATA(lv_json_partial) = /ui2/cl_json=>serialize( data = ls_response  ).
       lo_entity->set_string_data(
-            |\{ "message":"Program not found." \}| ).
+            |\{ "message":"Not found.", "data": { lv_json_partial } \}| ).
       lo_entity->set_content_type( 'application/json; charset=UTF-8' ).
       mo_response->set_status( cl_rest_status_code=>gc_client_error_bad_request ).
       RETURN.
@@ -685,7 +690,7 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
 
     DATA(lv_json) = /ui2/cl_json=>serialize( data = ls_response  ).
 
-    lo_entity->set_string_data( |\{ "message":"Found Program", "data": { lv_json } \}| ).
+    lo_entity->set_string_data( |\{ "message":"Found", "data": { lv_json } \}| ).
     lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
     mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
 
