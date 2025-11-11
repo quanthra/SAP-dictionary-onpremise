@@ -44,6 +44,9 @@ CLASS ZQUANTHRACL_SDO_HANDLER IMPLEMENTATION.
     lo_router->attach( iv_template = |/quanthra/create_request|       iv_handler_class = 'ZQUANTHRACL_SDO' ).
     lo_router->attach( iv_template = |/quanthra/create_program|       iv_handler_class = 'ZQUANTHRACL_SDO' ).
     lo_router->attach( iv_template = |/quanthra/get_program_source|   iv_handler_class = 'ZQUANTHRACL_SDO' ).
+    lo_router->attach( iv_template = |/quanthra/get_class_source|     iv_handler_class = 'ZQUANTHRACL_SDO' ).
+    lo_router->attach( iv_template = |/quanthra/get_function_source|  iv_handler_class = 'ZQUANTHRACL_SDO' ).
+    lo_router->attach( iv_template = |/quanthra/get_cds_source|       iv_handler_class = 'ZQUANTHRACL_SDO' ).
 
     ro_root_handler = lo_router.
 
