@@ -458,6 +458,7 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
       lo_entity->set_string_data( |\{ "message":"Not Found", "data": { lv_json_partial } \}| ).
       lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
       mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
+      RETURN.
     ENDIF.
 
     READ REPORT lo_clsref->class_pool
