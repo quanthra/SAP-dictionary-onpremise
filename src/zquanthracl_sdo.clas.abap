@@ -584,7 +584,7 @@ CLASS ZQUANTHRACL_SDO IMPLEMENTATION.
 
     DATA(lv_json) = /ui2/cl_json=>serialize( data = ls_response  ).
 
-    lo_entity->set_string_data( |\{ "message":"Found Program", "data": { lv_json } \}| ).
+    lo_entity->set_string_data( |\{ "message":"Found", "data": { lv_json } \}| ).
     lo_entity->set_content_type( `application/json; charset=UTF-8` ) ##NO_TEXT.
     mo_response->set_status( cl_rest_status_code=>gc_success_accepted ).
 
